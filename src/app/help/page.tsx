@@ -4,13 +4,14 @@ import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { CircleHelp, MessageCircleHeart, Send } from "lucide-react";
 import Masthead from "@/components/Masthead";
+import BackButton from "@/components/BackButton";
 import Footer from "@/components/Footer";
 import { db } from "@/lib/db";
 import { useSession } from "@/lib/auth";
 
 const FAQ: { q: string; a: string }[] = [
   {
-    q: "What does PantryPal actually do?",
+    q: "What does coci actually do?",
     a: "You list the ingredients you already have, set servings, days, diet and a peso budget, and it drafts a day-by-day meal plan plus a shopping list of only the missing items. Plans save to your kitchen board and, when signed in, to your account.",
   },
   {
@@ -27,15 +28,15 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "Who can delete community posts?",
-    a: "You can delete your own posts any time. Moderators and the admin role can remove any post or chat message that breaks the house rules; the rules and role system are enforced in the database, so the button simply does not appear for regular cooks.",
+    a: "You can delete your own posts any time. Moderators and the admin role can remove any post or chat message that breaks the house rules. The rules and role system are enforced in the database, so the button simply does not appear for regular cooks.",
   },
   {
     q: "How do I delete everything?",
-    a: "Account settings has a download for a full copy of your data (JSON) and a danger zone that erases your account plus every related row — plans, posts, likes, chats, recipes — immediately.",
+    a: "Account settings has a download for a full copy of your data (JSON) and a danger zone that erases your account plus every related row (plans, posts, likes, chats, recipes) immediately.",
   },
   {
     q: "Why did Chef Pan stop answering?",
-    a: "Chef Pan answers through Google's Gemini service. If the free tier is busy it retries other lanes automatically; if it still fails, wait a few seconds and ask again. Your rate limit is one question every few seconds so the shared key stays fair.",
+    a: "Chef Pan answers through Google's Gemini service. If the free tier is busy it retries other lanes automatically. If it still fails, wait a few seconds and ask again. Your rate limit is one question every few seconds so the shared key stays fair.",
   },
 ];
 
@@ -89,12 +90,13 @@ export default function HelpPage() {
       <Masthead />
       <main id="pp-main" className="mx-auto max-w-3xl px-5 sm:px-8">
         <section className="py-8">
+          <BackButton fallbackHref="/" label="Back home" />
           <h1 className="flex items-center gap-2 font-display text-3xl font-semibold">
             <CircleHelp className="size-7 text-herb" aria-hidden="true" />
             Help & feedback
           </h1>
           <p className="mt-1 text-sm text-mute">
-            Quick answers first; if that misses, the feedback form below reaches the
+            Quick answers first. If that misses, the feedback form below reaches the
             developer directly.
           </p>
         </section>
@@ -132,7 +134,7 @@ export default function HelpPage() {
           })}
           {shown.length === 0 && (
             <li className="py-6 text-sm text-mute">
-              Nothing matches “{query}” — try a shorter word, or send feedback below.
+              Nothing matches “{query}”. Try a shorter word, or send feedback below.
             </li>
           )}
         </ul>

@@ -1,4 +1,4 @@
-# PantryPal
+# coci
 
 A recipe-and-meal-planning web app for **COSC 105 - Intelligent Systems** at
 Cavite State University Naic. List what is in your pantry, set servings, diet

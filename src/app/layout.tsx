@@ -3,6 +3,7 @@ import { Fraunces, Atkinson_Hyperlegible } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import ChefDock from "@/components/ChefDock";
+import MobileTabBar from "@/components/MobileTabBar";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -17,27 +18,25 @@ const atkinson = Atkinson_Hyperlegible({
 
 export const metadata: Metadata = {
   title: {
-    default: "PantryPal, meal plans from your pantry",
-    template: "%s · PantryPal",
+    default: "coci",
+    template: "%s · coci",
   },
   description:
-    "List the ingredients you already have, set a budget, and PantryPal drafts a day-by-day meal plan plus a shopping list of what's missing.",
-  applicationName: "PantryPal",
+    "List the ingredients you already have, set a budget, and coci drafts a day-by-day meal plan plus a shopping list of what's missing.",
+  applicationName: "coci",
   icons: {
     icon: [
       { url: "/favicon.png", media: "(prefers-color-scheme: light)" },
       { url: "/icons/icon-192.png" },
     ],
-    apple: [
-      { url: "/icons/icon-512.png", sizes: "512x512" },
-    ],
+    apple: [{ url: "/icons/icon-512.png", sizes: "512x512" }],
   },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  viewportFit: "cover", // notches get real padding now that the dock is fixed
+  viewportFit: "cover", // notches get real padding now that the chrome is fixed
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#f6f1e5" },
     { media: "(prefers-color-scheme: dark)", color: "#201d15" },
@@ -69,6 +68,7 @@ export default function RootLayout({
           Skip to main content
         </a>
         {children}
+        <MobileTabBar />
         <ChefDock />
         <Toaster
           position="top-center"

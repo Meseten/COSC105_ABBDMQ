@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Footer from "@/components/Footer";
+import BackButton from "@/components/BackButton";
+import BackToTop from "@/components/BackToTop";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — PantryPal",
+  title: "Privacy Policy",
   description:
-    "What PantryPal collects, why, who it goes to, how long it is kept, and the rights you have over it.",
+    "What coci collects, why, who it goes to, how long it is kept, and the rights you have over it.",
 };
 
 function H({ children }: { children: string }) {
@@ -19,24 +21,25 @@ function P({ children }: { children: React.ReactNode }) {
 export default function PrivacyPage() {
   return (
     <>
-      <main id="pp-main" className="mx-auto max-w-2xl px-5 pb-24 pt-12 text-[15px]">
+      <main id="pp-main" className="mx-auto max-w-2xl px-5 pb-24 pt-6 text-[15px]">
+        <BackButton fallbackHref="/" label="Back home" />
         <h1 className="font-display text-3xl font-semibold">Privacy Policy</h1>
         <p className="mt-2 text-sm text-mute">
           Effective date: October 30, 2026
         </p>
 
         <P>
-          This policy explains how PantryPal (&ldquo;we&rdquo;,
+          This policy explains how coci (&ldquo;we&rdquo;,
           &ldquo;us&rdquo;) handles personal data when you use our web app and
           services. It follows the Data Privacy Act of 2012 and its
           implementing rules (Republic Act No. 10173) in the Philippines, and
-          is written to be plainly readable. By using PantryPal you agree to
+          is written to be plainly readable. By using coci you agree to
           this policy.
         </P>
 
         <H>1. Who is responsible</H>
         <P>
-          PantryPal is administered by the lead developer, Ben James Duag,
+          coci is administered by the lead developer, Ben James Duag,
           who also acts as database administrator and data protection officer
           (DPO). Questions, complaints and deletion requests go to{" "}
           <a className="underline decoration-line underline-offset-4" href="mailto:benjamesduag.edu@gmail.com">
@@ -54,8 +57,8 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong>Pantry and plan data:</strong> the ingredients, budgets,
-            notes, days and rules you enter; the plans PantryPal drafts for
-            you; the plans you save; and shopping-list progress.
+            notes, days and rules you enter, the plans coci drafts for
+            you, the plans you save, and shopping-list progress.
           </li>
           <li>
             <strong>Community data:</strong> plans you choose to share, titles,
@@ -124,18 +127,18 @@ export default function PrivacyPage() {
 
         <H>5. Where data lives</H>
         <P>
-          Supabase hosts our database in Singapore (ap-southeast-1); Gemini
+          Supabase hosts our database in Singapore (ap-southeast-1) and Gemini
           processes requests in Google&rsquo;s network. This means data leaves
           the Philippines. We rely on the security measures these providers
-          publish; encryption in transit (HTTPS) applies everywhere.
+          publish, and everything moves over HTTPS.
         </P>
 
         <H>6. How we protect it</H>
         <P>
-          Passwords are hashed by Supabase; sessions use short-lived signed
-          tokens; database access runs through row-level security policies and
-          security-definer functions; the Gemini key lives only on the server;
-          moderation and rate limits guard the community. No system is
+          Passwords are hashed by Supabase. Sessions use short-lived signed
+          tokens. Database access runs through row-level security policies and
+          security-definer functions. The Gemini key lives only on the server.
+          Moderation and rate limits guard the community. No system is
           perfectly safe, so we encourage you to use a unique password.
           If a breach is likely to harm you, we will notify you and the
           National Privacy Commission as required by law.
@@ -145,8 +148,8 @@ export default function PrivacyPage() {
         <P>
           Account and plan data are kept until you delete your account or ask
           us to. Chat messages live in the room history until a moderator
-          removes them. Anonymized (non-personal) aggregates &mdash; counts of
-          plans made, popular ingredients &mdash; may be kept indefinitely.
+          removes them.          Anonymized, non-personal aggregates (counts of plans made, popular
+          ingredients) may be kept indefinitely.
         </P>
 
         <H>8. Your rights</H>
@@ -164,7 +167,7 @@ export default function PrivacyPage() {
 
         <H>9. Children</H>
         <P>
-          PantryPal is not meant for children under 13. We delete accounts we
+          coci is not meant for children under 13. We delete accounts we
           learn belong to children under 13.
         </P>
 
@@ -173,8 +176,8 @@ export default function PrivacyPage() {
           We use one cookie-like item: your Supabase session token, kept in
           browser storage so you stay signed in. Your saved plans also live
           in browser storage as a device copy, so your kitchen still opens if
-          the network drops; the app itself runs online (plans, sharing and
-          chat need a connection). Turning off storage in your browser signs
+          the network drops. Plans, sharing and chat need a connection.
+          Turning off storage in your browser signs
           you out and clears your saved plans from this device.
         </P>
 
@@ -195,6 +198,7 @@ export default function PrivacyPage() {
           .
         </P>
       </main>
+      <BackToTop />
       <Footer />
     </>
   );

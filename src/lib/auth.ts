@@ -15,6 +15,10 @@ export interface Profile {
   badges: string[];
   level: number;
   role: "member" | "moderator" | "admin";
+  bio: string;
+  is_private: boolean;
+  default_household: number | null;
+  default_budget: number | null;
 }
 
 /** undefined = loading, null = signed out, Session = signed in. */
@@ -79,6 +83,11 @@ function toProfile(row: Record<string, unknown>): Profile {
       row.role === "admin" || row.role === "moderator"
         ? (row.role as "admin" | "moderator")
         : "member",
+    bio: typeof row.bio === "string" ? row.bio : "",
+    is_private: row.is_private === true,
+    default_household:
+      typeof row.default_household === "number" ? row.default_household : null,
+    default_budget: typeof row.default_budget === "number" ? row.default_budget : null,
   };
 }
 
@@ -89,7 +98,7 @@ export async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await sb
     .from("profiles")
     .select(
-      "id, display_name, xp, streak_days, last_plan_date, plan_count, share_count, badges, role",
+      "id, display_name, xp, streak_days, last_plan_date, plan_count, share_count, badges, role, bio, is_private, default_household, default_budget",
     )
     .eq("id", userId)
     .maybeSingle();

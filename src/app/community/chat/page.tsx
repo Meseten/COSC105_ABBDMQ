@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import Masthead from "@/components/Masthead";
+import BackButton from "@/components/BackButton";
 import Footer from "@/components/Footer";
 import { db } from "@/lib/db";
 import { getSignedInUserId } from "@/lib/plans";
@@ -130,7 +131,10 @@ export default function ChatRoomPage() {
     <>
       <Masthead />
       <main id="pp-main" className="mx-auto flex max-w-2xl flex-col px-5 sm:px-8" style={{ height: "70vh", minHeight: 420 }}>
-        <section className="py-6">
+        <div className="pt-6">
+          <BackButton fallbackHref="/community" label="Back to the community board" />
+        </div>
+        <section className="py-4">
           <h1 className="font-display text-3xl font-semibold">Kitchen talk</h1>
           <p className="mt-1 text-sm text-mute">
             A live room for the neighborhood: swap warnings, market finds and last-minute

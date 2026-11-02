@@ -10,6 +10,8 @@ import PlanView from "@/components/PlanView";
 import { getSignedInUserId, savePlan } from "@/lib/plans";
 import { deleteSharedPlan, loadOnePublicPlan, toggleLike, type PublicPlan } from "@/lib/community";
 import { fetchProfile, useSession } from "@/lib/auth";
+import PostComments from "@/components/PostComments";
+import { saveBoard, unsaveBoard, savedPostIds } from "@/lib/saves";
 import { db } from "@/lib/db";
 
 export default function SharedPlanPage() {
@@ -22,6 +24,7 @@ export default function SharedPlanPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [cook, setCook] = useState<string | null>(null);
   const [canModerate, setCanModerate] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (session === undefined || !id) return;
@@ -39,6 +42,7 @@ export default function SharedPlanPage() {
       if (uid) {
         const me = await fetchProfile(uid);
         if (alive) setCanModerate(me?.role === "admin" || me?.role === "moderator");
+        setSaved((await savedPostIds([id], uid)).has(id));
       }
     });
     return () => {
@@ -145,22 +149,54 @@ export default function SharedPlanPage() {
                 {userId === plan.user_id ? "Delete my post" : "Moderate: remove post"}
               </button>
             )}
-            {signedIn && (
-              <button
-                type="button"
-                onClick={async () => {
-                  await savePlan(plan.plan);
-                  toast.success("Copied to your kitchen.");
-                }}
-                className="mt-3 min-h-10 rounded-sm border border-herb px-4 py-2 text-sm font-bold text-herb transition-colors hover:bg-herb hover:text-paper"
-              >
-                Copy to my kitchen
-              </button>
-            )}
+            <div className="mt-3 flex flex-wrap gap-2">
+              {signedIn && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await savePlan(plan.plan);
+                    toast.success("Copied to your kitchen.");
+                  }}
+                  className="min-h-10 rounded-sm border border-herb px-4 py-2 text-sm font-bold text-herb transition-colors hover:bg-herb hover:text-paper"
+                >
+                  Copy to my kitchen
+                </button>
+              )}
+              {signedIn && userId !== plan.user_id && (
+                <button
+                  type="button"
+                  aria-pressed={saved}
+                  onClick={async () => {
+                    try {
+                      if (saved) {
+                        await unsaveBoard(plan.id, userId!);
+                        setSaved(false);
+                        toast.success("Taken off the shelf.");
+                      } else {
+                        await saveBoard(plan, userId!);
+                        setSaved(true);
+                        toast.success("On your want-to-try shelf.");
+                      }
+                    } catch {
+                      toast.error("Could not save that.");
+                    }
+                  }}
+                  className={`min-h-10 rounded-sm px-4 py-2 text-sm font-bold transition-colors ${
+                    saved
+                      ? "bg-sun text-on-brake"
+                      : "border border-line hover:border-sun hover:text-sun-deep"
+                  }`}
+                >
+                  {saved ? "On the shelf" : "Save to try"}
+                </button>
+              )}
+            </div>
 
             <div className="mt-6">
               <PlanView plan={plan.plan} />
             </div>
+
+            <PostComments postId={plan.id} />
           </section>
         )}
       </main>

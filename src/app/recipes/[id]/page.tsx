@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { ArrowLeft, Carrot, ChefHat, Clock3, Heart, MessageCircle, Trash2 } from "lucide-react";
+import { ArrowLeft, Carrot, ChefHat, Clock3, Copy, Heart, MessageCircle, Trash2 } from "lucide-react";
 import Masthead from "@/components/Masthead";
 import Footer from "@/components/Footer";
+import BackButton from "@/components/BackButton";
 import { PanMascot } from "@/components/ChefDock";
 import { db } from "@/lib/db";
 import { useSession } from "@/lib/auth";
@@ -115,6 +116,26 @@ export default function RecipeDetailPage() {
     if (next.length === built.length) toast.success("All steps checked. Serve while hot!");
   };
 
+  const copyRecipe = async () => {
+    if (!recipe || recipe === "missing") return;
+    const text = [
+      recipe.title,
+      `coci recipe · about ${recipe.minutes} minutes`,
+      "",
+      "Ingredients:",
+      ...recipe.ingredients.map((ing) => `- ${ing}`),
+      "",
+      "Steps:",
+      ...parseSteps(recipe.steps).map((s, i) => `${i + 1}. ${s}`),
+    ].join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Recipe copied. Paste it in chats, notes, anywhere.");
+    } catch {
+      toast.error("The browser blocked the copy.");
+    }
+  };
+
   const remove = async () => {
     if (!recipe || recipe === "missing") return;
     const sb = db();
@@ -159,7 +180,8 @@ export default function RecipeDetailPage() {
       <>
         <Masthead />
         <main id="pp-main" className="mx-auto max-w-2xl px-5 py-12 sm:px-8">
-          <div className="index-card p-6">
+          <BackButton fallbackHref="/recipes" label="Back to My recipes" />
+          <div className="index-card mt-4 p-6">
             <h1 className="font-display text-2xl font-semibold">Not on this bookshelf</h1>
             <p className="mt-2 text-sm text-mute">
               That recipe either doesn&apos;t exist, was removed, or belongs to someone
@@ -183,13 +205,9 @@ export default function RecipeDetailPage() {
     <>
       <Masthead />
       <main id="pp-main" className="mx-auto max-w-3xl px-5 pb-24 pt-0 sm:px-8">
-        <Link
-          href="/recipes"
-          className="inline-flex min-h-10 items-center gap-1 py-2 text-sm font-bold text-mute transition-colors hover:text-herb"
-        >
-          <ArrowLeft className="size-4" aria-hidden="true" />
-          My recipes
-        </Link>
+        <div className="pt-6">
+          <BackButton fallbackHref="/recipes" label="Back to My recipes" />
+        </div>
 
         <header className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
@@ -200,6 +218,17 @@ export default function RecipeDetailPage() {
             </p>
           </div>
           <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                void copyRecipe();
+              }}
+              aria-label={`Copy ${recipe.title} as text`}
+              title="Copy this recipe"
+              className="flex size-10 items-center justify-center rounded-full text-mute transition-colors hover:text-herb"
+            >
+              <Copy className="size-5" aria-hidden="true" />
+            </button>
             <button
               type="button"
               aria-pressed={recipe.favorite}

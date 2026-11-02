@@ -1,6 +1,7 @@
 "use client";
 
 import { db } from "./db";
+import { notify } from "./notifications";
 import type { MealPlanResult } from "./types";
 
 export interface PublicPlan {
@@ -11,6 +12,7 @@ export interface PublicPlan {
   like_count: number;
   user_id: string;
   cook_name: string | null;
+  visibility: "public" | "buddies";
   liked: boolean;
 }
 
@@ -31,7 +33,7 @@ export async function loadPublicPlans(
   const from = page * PAGE_SIZE;
   const { data, error } = await sb
     .from("shared_plans")
-    .select("id, created_at, title, plan, like_count, user_id")
+    .select("id, created_at, title, plan, like_count, user_id, visibility")
     .order(sort === "loved" ? "like_count" : "created_at", { ascending: false })
     .range(from, from + PAGE_SIZE - 1);
   if (error || !data) return [];
@@ -49,6 +51,15 @@ export async function loadPublicPlans(
     liked = new Set((likes ?? []).map((l) => String(l.plan_id)));
   }
 
+  let cooks = new Map<string, string>();
+  if (rows.length) {
+    const { data: cookRows } = await sb
+      .from("profiles")
+      .select("id, display_name")
+      .in("id", [...new Set(rows.map((r) => String(r.user_id)))]);
+    cooks = new Map((cookRows ?? []).map((c) => [String(c.id), String(c.display_name)]));
+  }
+
   const unsorted = rows.map((r) => ({
     id: String(r.id),
     created_at: String(r.created_at ?? ""),
@@ -56,8 +67,8 @@ export async function loadPublicPlans(
     plan: r.plan as MealPlanResult,
     like_count: typeof r.like_count === "number" ? r.like_count : 0,
     user_id: String(r.user_id ?? ""),
-    cook_name:
-      typeof r.cook_name === "string" && r.cook_name ? r.cook_name : null,
+    cook_name: cooks.get(String(r.user_id ?? "")) ?? null,
+    visibility: r.visibility === "buddies" ? ("buddies" as const) : ("public" as const),
     liked: liked.has(String(r.id)),
   }));
   return sort === "loved"
@@ -75,7 +86,7 @@ export async function loadOnePublicPlan(
   if (!sb) return null;
   const { data, error } = await sb
     .from("shared_plans")
-    .select("id, created_at, title, plan, like_count, user_id")
+    .select("id, created_at, title, plan, like_count, user_id, visibility")
     .eq("id", id)
     .maybeSingle();
   if (error || !data) return null;
@@ -98,6 +109,7 @@ export async function loadOnePublicPlan(
     like_count: typeof row.like_count === "number" ? row.like_count : 0,
     user_id: String(row.user_id ?? ""),
     cook_name: null,
+    visibility: row.visibility === "buddies" ? ("buddies" as const) : ("public" as const),
     liked,
   };
 }
@@ -111,8 +123,22 @@ export async function toggleLike(
   if (!sb) return;
   if (liked) {
     await sb.from("plan_likes").delete().eq("plan_id", planId).eq("user_id", userId);
-  } else {
-    await sb.from("plan_likes").insert({ plan_id: planId, user_id: userId });
+    return;
+  }
+  await sb.from("plan_likes").insert({ plan_id: planId, user_id: userId });
+  // ring the cook's bell, never my own
+  const { data: post } = await sb
+    .from("shared_plans")
+    .select("user_id")
+    .eq("id", planId)
+    .maybeSingle();
+  if (post) {
+    void notify({
+      targetId: String(post.user_id),
+      actorId: userId,
+      kind: "like",
+      postId: planId,
+    });
   }
 }
 
@@ -122,7 +148,16 @@ export async function deleteSharedPlan(planId: string, userId: string): Promise<
   await sb.from("shared_plans").delete().eq("id", planId).eq("user_id", userId);
 }
 
-export async function sharePlan(plan: MealPlanResult, title: string): Promise<string> {
+/**
+ * Posts a plan to the board. The server function creates the row with a
+ * fresh like count; audience is switched right after: buddies keeps the
+ * board to the people following the cook.
+ */
+export async function sharePlan(
+  plan: MealPlanResult,
+  title: string,
+  visibility: "public" | "buddies" = "public",
+): Promise<string> {
   const sb = db();
   if (!sb) throw new Error("Sign in first to post recipes.");
   const { data, error } = await sb.rpc("share_plan", {
@@ -130,7 +165,18 @@ export async function sharePlan(plan: MealPlanResult, title: string): Promise<st
     p_plan: plan as unknown as Record<string, unknown>,
   });
   if (error) throw new Error(error.message);
-  return String(data);
+  const id = String(data);
+  if (visibility === "buddies") {
+    const { error: visError } = await sb
+      .from("shared_plans")
+      .update({ visibility: "buddies" })
+      .eq("id", id);
+    if (visError) {
+      await sb.from("shared_plans").delete().eq("id", id);
+      throw new Error("Could not set who sees this board. Try again.");
+    }
+  }
+  return id;
 }
 
 export interface ChatMessageRow {

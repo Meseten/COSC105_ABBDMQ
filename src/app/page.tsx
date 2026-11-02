@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Masthead from "@/components/Masthead";
 import PlannerForm from "@/components/PlannerForm";
+import HomeFeed from "@/components/HomeFeed";
 import Footer from "@/components/Footer";
 
 function HowStep({ n, children }: { n: string; children: React.ReactNode }) {
@@ -21,7 +22,7 @@ export default function Home() {
             Cook meals with what you already have.
           </h1>
           <p className="mt-4 text-lg leading-relaxed">
-            List your pantry ingredients, set a budget, and PantryPal drafts a
+            List your pantry ingredients, set a budget, and coci drafts a
             day-by-day meal plan plus a shopping list of the missing bits. It is
             built for closets, condo kitchens, and peso budgets: the dishes bend
             to your servings, diet, and the cuisine you like.
@@ -51,6 +52,7 @@ export default function Home() {
           </ol>
         </section>
 
+        <HomeFeed />
         <PlannerForm />
       </main>
       <Footer />

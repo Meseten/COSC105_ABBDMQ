@@ -11,41 +11,18 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { GREETING, QUICK_ASKS, useChefChat } from "@/lib/chef-chat";
+import { CociMascot } from "./CociMascot";
 
 /**
- * PantryPal's second mark: a smiling pan wearing a lola's chef hat,
- * drawn with a single stroke color so the mascot works on every theme.
+ * The chat avatar: a close-up of coci's face, reused on /assistant and
+ * inside recipe cards via this named export.
  */
 export function PanMascot({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
-      {/* hat puffs + band */}
-      <circle cx="27" cy="13" r="7" fill="currentColor" />
-      <circle cx="37" cy="13" r="7" fill="currentColor" />
-      <circle cx="32" cy="9" r="7" fill="currentColor" />
-      <rect x="23" y="15" width="18" height="6" rx="2" fill="currentColor" />
-      {/* pan body and side handle */}
-      <circle cx="30" cy="42" r="16" fill="none" stroke="currentColor" strokeWidth="4.5" />
-      <rect
-        x="44"
-        y="39.5"
-        width="14"
-        height="5"
-        rx="2.5"
-        fill="currentColor"
-        transform="rotate(-14 44 39.5)"
-      />
-      {/* face */}
-      <circle cx="25" cy="40" r="2.4" fill="currentColor" />
-      <circle cx="35" cy="40" r="2.4" fill="currentColor" />
-      <path
-        d="M24 47.5 q6 5.5 12 0"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-    </svg>
+    <CociMascot
+      className={className}
+      viewBox="148 50 104 128"
+    />
   );
 }
 
@@ -201,7 +178,7 @@ export default function ChefDock() {
         aria-controls="chef-pan-dock"
         aria-label={open ? "Close the Chef Pan chat" : "Chat with Chef Pan"}
         title={open ? "Close Chef Pan" : "Chat with Chef Pan"}
-        className="no-print fixed z-50 flex size-14 items-center justify-center rounded-full bg-brake text-on-brake shadow-[0_3px_8px_rgb(0_0_0/28%)] transition-transform hover:scale-105 max-lg:bottom-[calc(1.25rem+env(safe-area-inset-bottom))] max-lg:right-[calc(1rem+env(safe-area-inset-right))] lg:bottom-6 lg:right-6 lg:size-16"
+        className="no-print fixed z-50 flex size-14 items-center justify-center rounded-full bg-brake text-on-brake shadow-[0_3px_8px_rgb(0_0_0/28%)] transition-transform hover:scale-105 max-lg:bottom-[calc(4.75rem+env(safe-area-inset-bottom))] max-lg:right-[calc(1rem+env(safe-area-inset-right))] lg:bottom-6 lg:right-6 lg:size-16"
       >
         {open ? <X className="size-6" aria-hidden="true" /> : <PanMascot className="size-10" />}
       </button>

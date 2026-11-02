@@ -10,6 +10,9 @@ import { deletePlan, loadPlans, planToText, setPinned } from "@/lib/plans";
 import { Pin } from "lucide-react";
 import { sharePlan } from "@/lib/community";
 import { useSession } from "@/lib/auth";
+import { getSignedInUserId } from "@/lib/plans";
+import { loadSavedBoards, unsaveBoard } from "@/lib/saves";
+import type { PublicPlan } from "@/lib/community";
 import { pesos, type SavedPlan } from "@/lib/types";
 
 function fmtDate(iso: string): string {
@@ -33,6 +36,68 @@ function downloadText(name: string, text: string): void {
   URL.revokeObjectURL(url);
 }
 
+/** Boards by other cooks I bookmarked to try some week. */
+function ToTryShelf() {
+  const [rows, setRows] = useState<PublicPlan[] | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    void getSignedInUserId().then(async (uid: string | null) => {
+      if (uid && alive) setRows(await loadSavedBoards(uid));
+      else if (alive) setRows([]);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  if (rows === null) return null;
+  if (rows.length === 0) return null;
+
+  return (
+    <section className="mt-8" aria-label="Boards to try">
+      <h2 className="font-display text-xl font-semibold">Boards to try</h2>
+      <p className="mt-1 text-xs text-mute">
+        Other cooks you saved while browsing the community board.
+      </p>
+      <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+        {rows.map((b) => (
+          <li key={b.id} className="index-card flex items-center justify-between gap-2 p-3">
+            <div className="min-w-0">
+              <Link
+                href={`/community/${b.id}`}
+                className="font-display font-semibold transition-colors hover:text-herb"
+              >
+                {b.title}
+              </Link>
+              <p className="truncate text-xs text-mute">
+                {b.cook_name ?? "A cook"} · {b.plan.mealPlan.length} days ·{" "}
+                ~{pesos(b.plan.financialSummary.totalEstimatedCost)}
+              </p>
+            </div>
+            <button
+              type="button"
+              aria-label={`Drop ${b.title} from the shelf`}
+              onClick={async () => {
+                try {
+                  const uid = await getSignedInUserId();
+                  if (uid) await unsaveBoard(b.id, uid);
+                  setRows((prev) => (prev ?? []).filter((r) => r.id !== b.id));
+                } catch {
+                  /* shelf just keeps it this time */
+                }
+              }}
+              className="min-h-10 shrink-0 rounded-sm border border-line px-3 text-xs font-bold text-mute transition-colors hover:border-brake hover:text-brake"
+            >
+              Drop
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export default function SavedPage() {
   const session = useSession();
   const signedIn = session !== undefined && session !== null && !session.user.is_anonymous;
@@ -40,6 +105,7 @@ export default function SavedPage() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [sharing, setSharing] = useState<string | null>(null);
   const [shareTitle, setShareTitle] = useState("");
+  const [shareVisibility, setShareVisibility] = useState<"public" | "buddies">("public");
   const [query, setQuery] = useState("");
 
   useEffect(() => {
@@ -61,10 +127,14 @@ export default function SavedPage() {
 
   const doShare = async (saved: SavedPlan) => {
     try {
-      const id = await sharePlan(saved.plan, shareTitle);
+      const id = await sharePlan(saved.plan, shareTitle, shareVisibility);
       setSharing(null);
       setShareTitle("");
-      toast.success("Posted on the community board.");
+      toast.success(
+        shareVisibility === "buddies"
+          ? "Posted for your crew only."
+          : "Posted on the community board.",
+      );
       window.open(`/community/${id}`, "_blank");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not share the plan.");
@@ -267,6 +337,8 @@ export default function SavedPage() {
             </ul>
           </div>
         )}
+
+        {signedIn && <ToTryShelf />}
       </main>
 
       {open && (
@@ -318,6 +390,37 @@ export default function SavedPage() {
               className="mt-1 h-11 w-full px-3 text-base font-normal"
               placeholder="Week of adobo and eggs"
             />
+            <fieldset className="mt-4">
+              <legend className="text-sm font-bold">Who sees this post</legend>
+              <div className="mt-2 flex gap-2">
+                <label className="flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-sm border px-3 text-sm font-bold has-[:checked]:border-herb has-[:checked]:bg-paper-deep">
+                  <input
+                    type="radio"
+                    name="share-visibility"
+                    value="public"
+                    checked={shareVisibility === "public"}
+                    onChange={() => setShareVisibility("public")}
+                    className="size-4 accent-[color:var(--herb)]"
+                  />
+                  Everyone
+                </label>
+                <label className="flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-sm border px-3 text-sm font-bold has-[:checked]:border-herb has-[:checked]:bg-paper-deep">
+                  <input
+                    type="radio"
+                    name="share-visibility"
+                    value="buddies"
+                    checked={shareVisibility === "buddies"}
+                    onChange={() => setShareVisibility("buddies")}
+                    className="size-4 accent-[color:var(--herb)]"
+                  />
+                  Crew only
+                </label>
+              </div>
+              <p className="mt-1.5 text-xs text-mute">
+                Crew only posts are visible to the cooks who follow you, everyone else
+                scrolls right past.
+              </p>
+            </fieldset>
             <div className="mt-4 flex gap-2">
               <button
                 type="button"

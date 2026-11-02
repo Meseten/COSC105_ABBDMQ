@@ -1,5 +1,5 @@
-// Renders the PantryPal logo (open pantry + smiling jar) into every icon size.
-// Run: node scripts/make-icons.mjs
+// Renders the coci logo (a squat pot under a steam-written "C") into
+// every icon size. Run: node scripts/make-icons.mjs
 import { Resvg } from "@resvg/resvg-js";
 import { mkdirSync, writeFileSync } from "node:fs";
 
@@ -9,45 +9,36 @@ const SUN = "#B97518";
 const PAPER = "#F6F1E5";
 
 /**
- * PantryPal mark: the door of a pantry stands open, and inside it a jar
- * with a smile greets you. The "pal" is the jar; the pantry is the house.
+ * coci mark: the cute filled pot with its face, lid, sun knob and the
+ * steam curling into a C on top. cocina, kitchen, coci.
  */
-function mark({ paper = PAPER, fg = INK, accent = HERB, sun = SUN } = {}) {
+function mark({ paper = PAPER, fg = INK, face = paper, accent = HERB, sun = SUN } = {}) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" rx="96" fill="${paper}"/>
-  <!-- the pantry cabinet: an open door on the left, deep shelf on the right -->
-  <g fill="none" stroke="${fg}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
-    <!-- cabinet body -->
-    <rect x="106" y="128" width="300" height="280" rx="14"/>
-    <!-- interior shelf line -->
-    <line x1="278" y1="128" x2="278" y2="408"/>
-    <line x1="278" y1="268" x2="406" y2="268"/>
-    <!-- open door, swung out to the left -->
-    <path d="M232 128 L 96 96 L 96 352 L 232 408"/>
-    <circle cx="128" cy="212" r="9" fill="${fg}" stroke="none"/>
-    <!-- cans and tins on the top-right shelf -->
-    <rect x="308" y="196" width="26" height="66" rx="6"/>
-    <rect x="344" y="186" width="26" height="76" rx="6"/>
-    <!-- the pal: a smiling jar on the bottom shelf -->
-    <path d="M312 328 h72 c8 14 10 24 10 38 a46 46 0 0 1 -92 0 c0 -14 2 -24 10 -38 Z"/>
-    <line x1="306" y1="322" x2="390" y2="322"/>
-    <line x1="312" y1="300" x2="384" y2="300"/>
-  </g>
-  <!-- jar's friendly face -->
-  <circle cx="336" cy="350" r="7" fill="${fg}"/>
-  <circle cx="360" cy="350" r="7" fill="${fg}"/>
-  <path d="M334 366 q14 10 28 0" fill="none" stroke="${fg}" stroke-width="8" stroke-linecap="round"/>
-  <!-- a little leaf tucked on the jar lid: fresh, homegrown -->
-  <path d="M369 292 q16 -18 34 -12 q2 18 -16 28 q-14 6 -20 -4 q-2 -8 2 -12 Z" fill="${accent}" stroke="none"/>
-  <!-- steam curls rising from the jar, colored warm -->
-  <path d="M322 276 c-6 -10 0 -18 0 -28 M340 278 c6 -12 -2 -20 2 -30" fill="none" stroke="${sun}" stroke-width="9" stroke-linecap="round"/>
+  <!-- steam writing a C over the pot -->
+  <path d="M316 120 a 54.4 54.4 0 1 0 -6.4 86.4" fill="none" stroke="${accent}" stroke-width="35" stroke-linecap="round"/>
+  <path d="M248 140 c-12 -56 37 -59 41.6 -94.4" fill="none" stroke="${sun}" stroke-width="22" stroke-linecap="round"/>
+  <!-- pot belly, filled and warm -->
+  <path d="M124 248 C 124 324 128 364 164 392 C 188 412 236 428 256 428 C 276 428 324 412 348 392 C 384 364 388 324 388 248 Z" fill="${accent}"/>
+  <ellipse cx="188" cy="304" rx="17.6" ry="44" fill="#ffffff" opacity="0.28"/>
+  <!-- the face: bead eyes, smile, sun cheeks -->
+  <circle cx="222.4" cy="320" r="16.8" fill="${face}"/>
+  <circle cx="289.6" cy="320" r="16.8" fill="${face}"/>
+  <path d="M222.4 356 q 33.6 32 67.2 0" fill="none" stroke="${face}" stroke-width="20.8" stroke-linecap="round"/>
+  <circle cx="190.4" cy="348.8" r="13.6" fill="${sun}" opacity="0.75"/>
+  <circle cx="321.6" cy="348.8" r="13.6" fill="${sun}" opacity="0.75"/>
+  <!-- lid -->
+  <rect x="104" y="192" width="304" height="60" rx="28.8" fill="${paper}" stroke="${fg}" stroke-width="27.2"/>
+  <circle cx="256" cy="164" r="24.8" fill="${sun}" stroke="${fg}" stroke-width="19.2"/>
+  <!-- short side handles -->
+  <path d="M88 240 h 40 M 384 240 h 40" fill="none" stroke="${fg}" stroke-width="27.2" stroke-linecap="round"/>
 </svg>`;
 }
 
 function render(svg, size) {
   const r = new Resvg(svg, {
     fitTo: { mode: "width", value: size },
-    shapeRendering: "geometricPrecision",
+    font: { loadSystemFonts: false, loadExternalFonts: false },
   });
   return r.render().asPng();
 }
@@ -63,7 +54,7 @@ const maskable = mark();
 writeFileSync("public/icons/icon-512-maskable.png", render(maskable, 512));
 
 // Favicon + Apple touch icon share the artwork, tinted differently.
-const favicon = mark({ fg: PAPER, paper: INK, accent: "#9CC47E", sun: "#D9A04A" });
+const favicon = mark({ fg: PAPER, paper: INK, face: INK, accent: "#9CC47E", sun: "#D9A04A" });
 writeFileSync("public/favicon.png", render(favicon, 64));
 writeFileSync("public/icon-192-alt.png", render(favicon, 192));
 

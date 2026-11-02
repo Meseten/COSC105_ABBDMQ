@@ -1,4 +1,4 @@
-# PantryPal — ISO/IEC 25010 quality note (v1.0, October 2026)
+# coci — ISO/IEC 25010 quality note (v1.0, October 2026)
 
 Evaluated against the eight product-quality characteristics of
 ISO/IEC 25010:2023. Practical limits are stated honestly — no web app scores a

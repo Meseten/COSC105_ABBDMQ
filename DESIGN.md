@@ -1,4 +1,4 @@
-# PantryPal Design Direction
+# coci Design Direction
 
 Transcribed from the owner's chosen direction: **editorial kitchen journal**.
 Audience: CS students who will see a live class demo, plus anyone cooking at home
@@ -65,7 +65,7 @@ Measure: body text ≤ 66ch.
 
 The **recipe index card**: day-plan tabs render as index cards pinned on a
 line; shopping list items are struck through with a hand-style marker when
-bought. This motif is PantryPal's identity, repeated consistently.
+bought. This motif is coci's identity, repeated consistently.
 
 ## Principles
 

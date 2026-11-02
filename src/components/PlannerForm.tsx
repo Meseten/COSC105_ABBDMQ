@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import PlanView from "./PlanView";
 import { pullPantryHandoff, savePlan } from "@/lib/plans";
+import { db } from "@/lib/db";
 import type { MealPlanResult, PlanApiError } from "@/lib/types";
 
 const EXAMPLE_PANTRY = [
@@ -200,6 +201,24 @@ export default function PlannerForm() {
       toast.success("Pantry packed from your recipe. Tune the numbers below.");
     }
     setBooted(true);
+    // Signed-in cooks get the defaults they set under Kitchen preferences,
+    // without ever screaming over what they remember or typed.
+    if (!memory) {
+      void (async () => {
+        const sb = db();
+        if (!sb) return;
+        const { data } = await sb.auth.getUser();
+        if (!data?.user || data.user.is_anonymous) return;
+        const { data: row } = await sb
+          .from("profiles")
+          .select("default_household, default_budget")
+          .eq("id", data.user.id)
+          .maybeSingle();
+        const r = row as { default_household?: number | null; default_budget?: number | null } | null;
+        if (r?.default_household) setServings(Number(r.default_household));
+        if (r?.default_budget) setBudgetAmount(String(r.default_budget));
+      })();
+    }
   }, [booted]);
 
   useEffect(() => {
@@ -437,7 +456,7 @@ export default function PlannerForm() {
         <p aria-live="polite" className="mt-3 text-sm text-mute">
           {busy
             ? loadingLine
-            : "Your ingredients, budget and notes are sent to Google Gemini through PantryPal's server; the API key never touches your browser."}
+            : "Your ingredients, budget and notes are sent to Google Gemini through coci's server; the API key never touches your browser."}
         </p>
 
         {status === "error" && (

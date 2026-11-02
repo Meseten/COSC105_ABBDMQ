@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { CheckCircle2, Circle, Copy, ShoppingCart } from "lucide-react";
+import { CheckCircle2, Circle, Copy, Printer, ShoppingCart } from "lucide-react";
 import Masthead from "@/components/Masthead";
 import Footer from "@/components/Footer";
 import { loadPlans } from "@/lib/plans";
@@ -187,7 +187,7 @@ export default function GroceriesPage() {
                   <button
                     type="button"
                     onClick={async () => {
-                      const text = `PantryPal groceries for ${plan.title}\n\n${items
+                      const text = `coci groceries for ${plan.title}\n\n${items
                         .map((i) => `[${picked.includes(i.itemName) ? "x" : " "}] ${i.itemName} (${i.quantity})`)
                         .join("\n")}`;
                       try {
@@ -201,6 +201,14 @@ export default function GroceriesPage() {
                   >
                     <Copy className="size-4" aria-hidden="true" />
                     Copy the list
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="inline-flex min-h-11 items-center gap-2 rounded-sm border border-line bg-card px-4 text-sm font-bold transition-colors hover:border-herb hover:text-herb"
+                  >
+                    <Printer className="size-4" aria-hidden="true" />
+                    Print
                   </button>
                   <Link
                     href="/saved"

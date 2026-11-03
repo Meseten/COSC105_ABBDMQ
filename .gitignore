@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# local test screenshots (never commit verification shots)
+/*.png
+
 # next.js
 /.next/
 /out/
@@ -36,6 +39,11 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# playwright
+/test-results
+/playwright-report
+/playwright/.cache
 
 # typescript
 *.tsbuildinfo

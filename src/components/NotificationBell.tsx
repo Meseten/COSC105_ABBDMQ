@@ -15,7 +15,7 @@ import { getSignedInUserId } from "@/lib/plans";
 const KIND_COPY: Record<NotificationRow["kind"], string> = {
   follow: "followed you",
   like: "tasted your board",
-  comment: "chimed in on your board",
+  comment: "left a chika on your board",
   save: "saved your board",
 };
 

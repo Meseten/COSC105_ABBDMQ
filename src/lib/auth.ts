@@ -19,6 +19,10 @@ export interface Profile {
   is_private: boolean;
   default_household: number | null;
   default_budget: number | null;
+  notif_follows: boolean;
+  notif_likes: boolean;
+  notif_comments: boolean;
+  notif_saves: boolean;
 }
 
 /** undefined = loading, null = signed out, Session = signed in. */
@@ -88,6 +92,10 @@ function toProfile(row: Record<string, unknown>): Profile {
     default_household:
       typeof row.default_household === "number" ? row.default_household : null,
     default_budget: typeof row.default_budget === "number" ? row.default_budget : null,
+    notif_follows: row.notif_follows !== false,
+    notif_likes: row.notif_likes !== false,
+    notif_comments: row.notif_comments !== false,
+    notif_saves: row.notif_saves !== false,
   };
 }
 
@@ -98,7 +106,7 @@ export async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await sb
     .from("profiles")
     .select(
-      "id, display_name, xp, streak_days, last_plan_date, plan_count, share_count, badges, role, bio, is_private, default_household, default_budget",
+      "id, display_name, xp, streak_days, last_plan_date, plan_count, share_count, badges, role, bio, is_private, default_household, default_budget, notif_follows, notif_likes, notif_comments, notif_saves",
     )
     .eq("id", userId)
     .maybeSingle();

@@ -6,12 +6,14 @@ import ThemeToggle from "./ThemeToggle";
 import Rail from "./Rail";
 import CociLogo from "./CociLogo";
 import NotificationBell from "./NotificationBell";
-import { signOut, useSession } from "@/lib/auth";
+import { signOut, useProfile, useSession } from "@/lib/auth";
 
 export default function Masthead() {
   const router = useRouter();
   const session = useSession();
+  const { profile } = useProfile();
   const signedIn = session !== undefined && session !== null && !session.user.is_anonymous;
+  const steward = profile?.role === "admin" || profile?.role === "moderator";
 
   return (
     <>
@@ -62,6 +64,16 @@ export default function Masthead() {
                     >
                       Profile and badges
                     </Link>
+                    {steward && (
+                      <Link
+                        href="/moderation"
+                        onClick={(e) => e.currentTarget.closest("details")?.removeAttribute("open")}
+                        role="menuitem"
+                        className="block rounded px-3 py-2 text-sm font-bold transition-colors hover:bg-paper-deep"
+                      >
+                        Steward&apos;s desk
+                      </Link>
+                    )}
                     <Link
                       href="/settings"
                       onClick={(e) => e.currentTarget.closest("details")?.removeAttribute("open")}

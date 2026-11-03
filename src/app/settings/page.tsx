@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import { db } from "@/lib/db";
 import { signOut, useProfile, useSession } from "@/lib/auth";
 import { Lock } from "lucide-react";
+import PasswordInput from "@/components/PasswordInput";
 
 /** Reads the current look: stored pick, or system when nothing chose yet. */
 type ThemeChoice = "system" | "light" | "dark";
@@ -56,6 +57,9 @@ export default function SettingsPage() {
   const [household, setHousehold] = useState("");
   const [budget, setBudget] = useState("");
   const [savingKitchen, setSavingKitchen] = useState(false);
+  // the bell
+  const [bell, setBell] = useState({ follows: true, likes: true, comments: true, saves: true });
+  const [savingBell, setSavingBell] = useState(false);
 
   const signedIn = session !== undefined && session !== null && !session.user.is_anonymous;
   const isAnonSession = session !== undefined && session !== null && session.user.is_anonymous;
@@ -71,6 +75,12 @@ export default function SettingsPage() {
           ? String(profile.default_budget)
           : "",
       );
+      setBell({
+        follows: profile.notif_follows,
+        likes: profile.notif_likes,
+        comments: profile.notif_comments,
+        saves: profile.notif_saves,
+      });
     }
   }, [profile]);
 
@@ -167,6 +177,30 @@ export default function SettingsPage() {
       toast.error(err instanceof Error ? err.message : "Could not save the defaults.");
     } finally {
       setSavingKitchen(false);
+    }
+  };
+
+  const saveBell = async () => {
+    setSavingBell(true);
+    try {
+      const sb = db();
+      if (!sb) throw new Error("Storage not configured.");
+      const { error } = await sb
+        .from("profiles")
+        .update({
+          notif_follows: bell.follows,
+          notif_likes: bell.likes,
+          notif_comments: bell.comments,
+          notif_saves: bell.saves,
+        })
+        .eq("id", (await sb.auth.getUser()).data.user?.id ?? "");
+      if (error) throw error;
+      await refresh();
+      toast.success("Bell settings kept.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not save the bell.");
+    } finally {
+      setSavingBell(false);
     }
   };
 
@@ -420,20 +454,57 @@ export default function SettingsPage() {
         </section>
 
         <section className="index-card mb-4 p-5 sm:p-6">
+          <h2 className="font-display text-xl font-semibold">Your bell</h2>
+          <p className="mt-1 text-xs text-mute">
+            Choose what still rings. The bell never pings you for your own moves.
+          </p>
+          <div className="mt-3 grid gap-2">
+            {(
+              [
+                ["follows", "Someone follows me"],
+                ["likes", "Someone taps the heart on my board"],
+                ["comments", "Someone drops a chika on my board"],
+                ["saves", "Someone shelves my board to try"],
+              ] as const
+            ).map(([key, label]) => (
+              <label
+                key={key}
+                className="flex min-h-11 cursor-pointer items-center gap-3 rounded-sm border px-3 text-sm font-bold has-[:checked]:border-herb has-[:checked]:bg-paper-deep"
+              >
+                <input
+                  type="checkbox"
+                  checked={bell[key]}
+                  onChange={(e) => setBell((b) => ({ ...b, [key]: e.target.checked }))}
+                  className="size-4 accent-[color:var(--herb)]"
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => void saveBell()}
+            disabled={savingBell}
+            className="mt-3 min-h-11 rounded-sm bg-herb px-4 text-sm font-bold text-paper transition-opacity hover:opacity-90 disabled:opacity-60"
+          >
+            Save bell settings
+          </button>
+        </section>
+
+        <section className="index-card mb-4 p-5 sm:p-6">
           <h2 className="font-display text-xl font-semibold">Password</h2>
           <label className="mt-3 block text-sm font-bold" htmlFor="new-password">
             New password
           </label>
           <div className="mt-1 flex gap-2">
-            <input
+            <PasswordInput
               id="new-password"
-              type="password"
               value={newPassword}
               minLength={6}
               autoComplete="new-password"
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={setNewPassword}
               placeholder="At least 6 characters"
-              className="h-11 min-w-0 flex-1 px-3 text-base font-normal"
+              className="h-11 min-w-0 flex-1 px-3 pr-10 text-base font-normal"
             />
             <button
               type="button"

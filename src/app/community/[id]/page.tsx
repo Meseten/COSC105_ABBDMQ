@@ -11,6 +11,7 @@ import { getSignedInUserId, savePlan } from "@/lib/plans";
 import { deleteSharedPlan, loadOnePublicPlan, toggleLike, type PublicPlan } from "@/lib/community";
 import { fetchProfile, useSession } from "@/lib/auth";
 import PostComments from "@/components/PostComments";
+import ReportButton from "@/components/ReportButton";
 import { saveBoard, unsaveBoard, savedPostIds } from "@/lib/saves";
 import { db } from "@/lib/db";
 
@@ -190,6 +191,7 @@ export default function SharedPlanPage() {
                   {saved ? "On the shelf" : "Save to try"}
                 </button>
               )}
+              {signedIn && userId !== plan.user_id && <ReportButton kind="post" id={plan.id} />}
             </div>
 
             <div className="mt-6">

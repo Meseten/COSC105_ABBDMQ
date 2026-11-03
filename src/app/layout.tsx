@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Atkinson_Hyperlegible } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import ChefDock from "@/components/ChefDock";
 import MobileTabBar from "@/components/MobileTabBar";
 
@@ -70,6 +72,8 @@ export default function RootLayout({
         {children}
         <MobileTabBar />
         <ChefDock />
+        <Analytics />
+        <SpeedInsights />
         <Toaster
           position="top-center"
           toastOptions={{

@@ -23,7 +23,12 @@ Additional rules:
 - Respect dietary rules and the avoid list; never suggest anything that breaks them.
 - Give each meal a specific, cookable dish name (not a category) and a one-sentence description.
 - usedAvailableIngredients lists only the items from the pantry that meal actually uses; use [] when it is none.
-- Quantities in the shopping list must be realistic to buy in a Philippine public market or grocery, and estimatedCost is a rough metro-Manila peso price per item in PHP.`;
+- Quantities in the shopping list must be realistic to buy in a Philippine public market or grocery, and estimatedCost is a rough metro-Manila peso price per item in PHP.
+- Anchor estimatedCost to these late-2026 Metro Manila palengke and grocery reference prices (DA/DTI ranges in PHP, find the middle of the range for a normal shelf item):
+  rice well-milled 48-56/kg, eggs 8-10 each, red onion 90-150/kg, garlic 130-170/kg, tomato 60-120/kg, cabbage 70-150/kg, carrots 85-130/kg, white potato 100-150/kg, kalabasa 40-70/kg, ampalaya 90-180/kg, sitaw 90-175/kg, talong 80-160/kg;
+  pork kasim 310-355/kg, pork liempo 330-400/kg, whole chicken 190-220/kg, chicken fillet 210-230/kg, galunggong 200-400/kg, tilapia 140-200/kg, bangus 210-270/kg;
+  canned sardines 17-22 per 155g can, cooking oil 140-165 per litre, white sugar 75-90/kg, brown sugar 65-80/kg, salt 30-45/kg, soy sauce 19-22 per 350ml, vinegar 18-19 per 350ml.
+  Scale the cost by the quantity actually listed, and never price an item below the range floor.`;
 
 const prettyFields = (r: PlanRequest): string =>
   [

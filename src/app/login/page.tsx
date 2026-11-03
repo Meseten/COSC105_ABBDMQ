@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { db } from "@/lib/db";
 import Masthead from "@/components/Masthead";
 import Footer from "@/components/Footer";
+import PasswordInput from "@/components/PasswordInput";
 
 type Mode = "signin" | "signup";
 
@@ -139,14 +140,12 @@ export default function LoginPage() {
           </label>
           <label className="flex flex-col gap-1 text-sm font-bold">
             Password
-            <input
-              type="password"
+            <PasswordInput
               required
               minLength={6}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={setPassword}
               placeholder="At least 6 characters"
-              className="h-11 px-3 text-base font-normal"
               autoComplete={mode === "signin" ? "current-password" : "new-password"}
             />
           </label>

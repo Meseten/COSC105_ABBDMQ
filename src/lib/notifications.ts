@@ -25,6 +25,23 @@ export async function notify(opts: {
   if (!opts.targetId || opts.actorId === opts.targetId) return;
   const sb = db();
   if (!sb) return;
+  // respect the target cook's bell settings, silence wins
+  const FLAGS: Record<NotificationKind, string> = {
+    follow: "notif_follows",
+    like: "notif_likes",
+    comment: "notif_comments",
+    save: "notif_saves",
+  };
+  const flag = FLAGS[opts.kind];
+  const { data: prefs } = await sb
+    .from("profiles")
+    .select(flag)
+    .eq("id", opts.targetId)
+    .maybeSingle();
+  const prefVal = prefs
+    ? (prefs as unknown as Record<string, unknown>)[flag]
+    : true;
+  if (prefVal === false) return;
   await sb
     .from("notifications")
     .insert({

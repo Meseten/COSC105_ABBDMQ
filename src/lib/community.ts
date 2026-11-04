@@ -13,6 +13,7 @@ export interface PublicPlan {
   user_id: string;
   cook_name: string | null;
   visibility: "public" | "buddies";
+  photo_url: string | null;
   liked: boolean;
 }
 
@@ -33,7 +34,7 @@ export async function loadPublicPlans(
   const from = page * PAGE_SIZE;
   const { data, error } = await sb
     .from("shared_plans")
-    .select("id, created_at, title, plan, like_count, user_id, visibility")
+    .select("id, created_at, title, plan, like_count, user_id, visibility, photo_url")
     .order(sort === "loved" ? "like_count" : "created_at", { ascending: false })
     .range(from, from + PAGE_SIZE - 1);
   if (error || !data) return [];
@@ -69,6 +70,7 @@ export async function loadPublicPlans(
     user_id: String(r.user_id ?? ""),
     cook_name: cooks.get(String(r.user_id ?? "")) ?? null,
     visibility: r.visibility === "buddies" ? ("buddies" as const) : ("public" as const),
+    photo_url: typeof r.photo_url === "string" && r.photo_url ? r.photo_url : null,
     liked: liked.has(String(r.id)),
   }));
   return sort === "loved"
@@ -86,7 +88,7 @@ export async function loadOnePublicPlan(
   if (!sb) return null;
   const { data, error } = await sb
     .from("shared_plans")
-    .select("id, created_at, title, plan, like_count, user_id, visibility")
+    .select("id, created_at, title, plan, like_count, user_id, visibility, photo_url")
     .eq("id", id)
     .maybeSingle();
   if (error || !data) return null;
@@ -110,6 +112,7 @@ export async function loadOnePublicPlan(
     user_id: String(row.user_id ?? ""),
     cook_name: null,
     visibility: row.visibility === "buddies" ? ("buddies" as const) : ("public" as const),
+    photo_url: typeof row.photo_url === "string" && row.photo_url ? row.photo_url : null,
     liked,
   };
 }
@@ -157,6 +160,7 @@ export async function sharePlan(
   plan: MealPlanResult,
   title: string,
   visibility: "public" | "buddies" = "public",
+  photoUrl?: string,
 ): Promise<string> {
   const sb = db();
   if (!sb) throw new Error("Sign in first to post recipes.");
@@ -166,6 +170,9 @@ export async function sharePlan(
   });
   if (error) throw new Error(error.message);
   const id = String(data);
+  if (photoUrl) {
+    await sb.from("shared_plans").update({ photo_url: photoUrl }).eq("id", id);
+  }
   if (visibility === "buddies") {
     const { error: visError } = await sb
       .from("shared_plans")

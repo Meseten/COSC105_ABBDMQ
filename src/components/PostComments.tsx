@@ -13,6 +13,7 @@ import {
 } from "@/lib/comments";
 import { useSession } from "@/lib/auth";
 import { getSignedInUserId } from "@/lib/plans";
+import { photoProblem, uploadPhoto } from "@/lib/photos";
 import ReportButton from "./ReportButton";
 
 function ChikaCard({
@@ -120,7 +121,17 @@ function ChikaCard({
             </div>
           </div>
         ) : (
-          <p className="mt-0.5 break-words text-sm">{c.body}</p>
+          <>
+            {c.body && <p className="mt-0.5 break-words text-sm">{c.body}</p>}
+            {c.photo_url && (
+              <img
+                src={c.photo_url}
+                alt={`Photo from ${c.cook_name ?? "a cook"}`}
+                loading="lazy"
+                className="mt-1.5 max-h-56 w-full max-w-xs rounded-sm object-cover"
+              />
+            )}
+          </>
         )}
       </div>
       {!mine && userId && <ReportButton kind="comment" id={c.id} />}
@@ -177,6 +188,8 @@ export default function PostComments({ postId }: { postId: string }) {
   const [draft, setDraft] = useState("");
   const [replyingTo, setReplyingTo] = useState<CommentRow | null>(null);
   const [sending, setSending] = useState(false);
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
 
   useEffect(() => {
     void getSignedInUserId().then(setUserId);
@@ -200,9 +213,16 @@ export default function PostComments({ postId }: { postId: string }) {
     if (!signedIn || sending) return;
     setSending(true);
     try {
-      await addComment(postId, userId!, draft, replyingTo?.id ?? null);
+      let photoUrl: string | undefined;
+      if (photo) {
+        photoUrl = await uploadPhoto(userId!, photo);
+      }
+      await addComment(postId, userId!, draft, replyingTo?.id ?? null, photoUrl);
       setDraft("");
       setReplyingTo(null);
+      if (preview) URL.revokeObjectURL(preview);
+      setPhoto(null);
+      setPreview(null);
       void refresh();
       toast.success("Said it.");
     } catch (err) {
@@ -210,6 +230,20 @@ export default function PostComments({ postId }: { postId: string }) {
     } finally {
       setSending(false);
     }
+  };
+
+  const pickPhoto = (file: File | null) => {
+    if (preview) URL.revokeObjectURL(preview);
+    setPhoto(null);
+    setPreview(null);
+    if (!file) return;
+    const problem = photoProblem(file);
+    if (problem) {
+      toast.error(problem);
+      return;
+    }
+    setPhoto(file);
+    setPreview(URL.createObjectURL(file));
   };
 
   return (
@@ -275,6 +309,13 @@ export default function PostComments({ postId }: { postId: string }) {
               </button>
             </div>
           )}
+          {preview && (
+            <img
+              src={preview}
+              alt="Photo you picked for this chika"
+              className="size-12 shrink-0 self-start rounded-sm object-cover"
+            />
+          )}
           <label className="flex-1">
             <span className="sr-only">Write a reply</span>
             <textarea
@@ -287,10 +328,25 @@ export default function PostComments({ postId }: { postId: string }) {
               aria-label="Write a reply"
             />
           </label>
+          <label
+            className="relative flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-sm border border-line bg-card text-mute transition-colors hover:border-herb hover:text-herb"
+            title="Attach a photo"
+          >
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="sr-only"
+              aria-label="Attach a photo"
+              onChange={(e) => pickPhoto(e.target.files?.[0] ?? null)}
+            />
+            <svg viewBox="0 0 20 20" aria-hidden="true" className="size-5 fill-current">
+              <path d="M7 4.5c-.7 0-1.3.4-1.6 1l-.5 1H4a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.5a2 2 0 0 0-2-2h-.9l-.5-1c-.3-.6-.9-1-1.6-1H7Zm3 8.6a2.6 2.6 0 1 1 0-5.2 2.6 2.6 0 0 1 0 5.2Z" />
+            </svg>
+          </label>
           <button
             type="button"
             onClick={() => void send()}
-            disabled={sending || draft.trim().length === 0}
+            disabled={sending || (draft.trim().length === 0 && !photo)}
             className="min-h-11 rounded-sm bg-herb px-4 text-sm font-bold text-paper transition-opacity hover:opacity-90 disabled:opacity-60"
           >
             {replyingTo ? "Answer" : "Chika"}

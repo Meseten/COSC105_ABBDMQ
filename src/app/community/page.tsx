@@ -354,6 +354,14 @@ export default function CommunityPage() {
                 <p className="mt-2 text-sm">
                   {plan.plan.mealPlan[0]?.meals?.dinner?.name ?? "Nothing set yet"} on the first night
                 </p>
+                {plan.photo_url && (
+                  <img
+                    src={plan.photo_url}
+                    alt={`Photo of ${plan.title}`}
+                    loading="lazy"
+                    className="mt-2 h-36 w-full rounded-sm object-cover"
+                  />
+                )}
                 <div className="mt-3 flex items-center gap-2">
                   <Link
                     href={`/community/${plan.id}`}

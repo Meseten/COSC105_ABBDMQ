@@ -31,7 +31,8 @@ async function createCook(browser: Browser, name: string): Promise<Page> {
   return page;
 }
 
-test("two cooks chika, answer, edit, flag", { timeout: 150_000 }, async ({ browser }) => {
+test("two cooks chika, answer, edit, flag", async ({ browser }) => {
+  test.setTimeout(150_000);
   const a = await createCook(browser, COOK_A);
   const b = await createCook(browser, COOK_B);
 

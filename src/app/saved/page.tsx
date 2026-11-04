@@ -12,6 +12,7 @@ import { sharePlan } from "@/lib/community";
 import { useSession } from "@/lib/auth";
 import { getSignedInUserId } from "@/lib/plans";
 import { loadSavedBoards, unsaveBoard } from "@/lib/saves";
+import { photoProblem, uploadPhoto } from "@/lib/photos";
 import type { PublicPlan } from "@/lib/community";
 import { pesos, type SavedPlan } from "@/lib/types";
 
@@ -106,6 +107,8 @@ export default function SavedPage() {
   const [sharing, setSharing] = useState<string | null>(null);
   const [shareTitle, setShareTitle] = useState("");
   const [shareVisibility, setShareVisibility] = useState<"public" | "buddies">("public");
+  const [sharePhoto, setSharePhoto] = useState<File | null>(null);
+  const [sharePreview, setSharePreview] = useState<string | null>(null);
   const [query, setQuery] = useState("");
 
   useEffect(() => {
@@ -125,11 +128,24 @@ export default function SavedPage() {
     void loadPlans().then(setPlans);
   };
 
+  const resetSharePhoto = () => {
+    if (sharePreview) URL.revokeObjectURL(sharePreview);
+    setSharePhoto(null);
+    setSharePreview(null);
+  };
+
   const doShare = async (saved: SavedPlan) => {
     try {
-      const id = await sharePlan(saved.plan, shareTitle, shareVisibility);
+      let photoUrl: string | undefined;
+      if (sharePhoto) {
+        const uid = await getSignedInUserId();
+        if (!uid) throw new Error("Sign in first to attach a photo.");
+        photoUrl = await uploadPhoto(uid, sharePhoto);
+      }
+      const id = await sharePlan(saved.plan, shareTitle, shareVisibility, photoUrl);
       setSharing(null);
       setShareTitle("");
+      resetSharePhoto();
       toast.success(
         shareVisibility === "buddies"
           ? "Posted for your comares only."
@@ -421,6 +437,40 @@ export default function SavedPage() {
                 scrolls right past.
               </p>
             </fieldset>
+            <div className="mt-4">
+              <label className="text-sm font-bold" htmlFor="share-photo">
+                Show the dish (optional)
+              </label>
+              <input
+                id="share-photo"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="mt-1 h-11 w-full border border-line bg-card px-3 py-2 text-sm file:mr-3 file:rounded-sm file:border-0 file:bg-paper-deep file:px-2 file:py-1 file:text-sm file:font-bold"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] ?? null;
+                  if (!file) {
+                    resetSharePhoto();
+                    return;
+                  }
+                  const problem = photoProblem(file);
+                  if (problem) {
+                    toast.error(problem);
+                    e.target.value = "";
+                    return;
+                  }
+                  if (sharePreview) URL.revokeObjectURL(sharePreview);
+                  setSharePhoto(file);
+                  setSharePreview(URL.createObjectURL(file));
+                }}
+              />
+              {sharePreview && (
+                <img
+                  src={sharePreview}
+                  alt="Photo you picked for this post"
+                  className="mt-2 max-h-40 w-full rounded-sm object-cover"
+                />
+              )}
+            </div>
             <div className="mt-4 flex gap-2">
               <button
                 type="button"

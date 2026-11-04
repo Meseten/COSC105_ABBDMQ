@@ -136,6 +136,14 @@ export default function SharedPlanPage() {
               )}
             </p>
 
+            {plan.photo_url && (
+              <img
+                src={plan.photo_url}
+                alt={`Photo of ${plan.title}`}
+                className="mt-3 block max-h-80 w-full rounded-sm object-cover"
+              />
+            )}
+
             {(userId === plan.user_id || canModerate) && (
               <button
                 type="button"

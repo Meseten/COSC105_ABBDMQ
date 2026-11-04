@@ -51,7 +51,7 @@ export async function loadSavedBoards(userId: string): Promise<PublicPlan[]> {
   const ids = data.map((r) => String(r.post_id));
   const { data: posts } = await sb
     .from("shared_plans")
-    .select("id, user_id, title, plan, like_count, created_at, visibility")
+    .select("id, user_id, title, plan, like_count, created_at, visibility, photo_url")
     .in("id", ids)
     .in("visibility", ["public", "buddies"]);
   if (!posts) return [];
@@ -79,6 +79,7 @@ export async function loadSavedBoards(userId: string): Promise<PublicPlan[]> {
     like_count: Number(p.like_count ?? 0),
     created_at: String(p.created_at),
     visibility: p.visibility === "buddies" ? ("buddies" as const) : ("public" as const),
+    photo_url: typeof p.photo_url === "string" && p.photo_url ? p.photo_url : null,
     liked: false,
     cook_name: cookerNames.get(String(p.user_id)) ?? null,
   }));

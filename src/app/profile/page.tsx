@@ -200,7 +200,7 @@ export default function ProfilePage() {
             >
               <span className="inline-flex items-center gap-2">
                 <Users className="size-4" aria-hidden="true" />
-                My crew · {crew.following} following, {crew.followers} following me
+                My comare · {crew.following} following, {crew.followers} following me
               </span>
             </Link>
           </div>

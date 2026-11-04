@@ -11,6 +11,7 @@ export type CommentRow = {
   created_at: string;
   parent_comment_id: string | null;
   cook_name: string | null;
+  photo_url: string | null;
 };
 
 /** Every chika on one board, oldest first, with the cook name attached. */
@@ -19,7 +20,7 @@ export async function loadComments(postId: string): Promise<CommentRow[]> {
   if (!sb) return [];
   const { data } = await sb
     .from("post_comments")
-    .select("id, post_id, user_id, body, created_at, parent_comment_id, profiles!post_comments_user_id_fkey(display_name)")
+    .select("id, post_id, user_id, body, created_at, parent_comment_id, photo_url, profiles!post_comments_user_id_fkey(display_name)")
     .eq("post_id", postId)
     .order("created_at", { ascending: true });
   if (!data) return [];
@@ -36,6 +37,7 @@ export async function loadComments(postId: string): Promise<CommentRow[]> {
       created_at: String(r.created_at),
       parent_comment_id: r.parent_comment_id ? String(r.parent_comment_id) : null,
       cook_name: p?.display_name ?? null,
+      photo_url: typeof r.photo_url === "string" && r.photo_url ? r.photo_url : null,
     };
   });
 }
@@ -46,16 +48,18 @@ export async function addComment(
   userId: string,
   body: string,
   parentId?: string | null,
+  photoUrl?: string,
 ): Promise<void> {
   const sb = db();
   if (!sb) throw new Error("Storage not configured.");
   const clean = body.trim().slice(0, 500);
-  if (!clean) throw new Error("Nothing to say yet.");
+  if (!clean && !photoUrl) throw new Error("Nothing to say yet, or snap a photo.");
   const { error } = await sb.from("post_comments").insert({
     post_id: postId,
     user_id: userId,
     body: clean,
     parent_comment_id: parentId ?? null,
+    photo_url: photoUrl ?? null,
   });
   if (error) throw new Error(error.message);
   // ring the bell of the board owner and, on replies, of the cook answered

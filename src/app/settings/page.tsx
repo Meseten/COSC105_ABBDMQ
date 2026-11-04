@@ -144,7 +144,7 @@ export default function SettingsPage() {
       await refresh();
       toast.success(
         nextPrivate
-          ? "Your kitchen is private. Only your crew sees your boards."
+          ? "Your kitchen is private. Only your comares sees your boards."
           : "Your kitchen is open to everyone now.",
       );
     } catch (err) {
@@ -355,7 +355,7 @@ export default function SettingsPage() {
             </span>
           </label>
           <label className="mt-4 block text-sm font-bold" htmlFor="cook-bio">
-            Kitchen bio (shown as your line on your crew page)
+            Kitchen bio (shown as your line on your comares page)
           </label>
           <textarea
             id="cook-bio"

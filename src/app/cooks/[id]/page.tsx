@@ -77,7 +77,7 @@ export default function CookPage() {
     setCrew((c) => ({ ...c, followers: c.followers + (was ? -1 : 1) }));
     try {
       await setFollowing(userId, cookId, !was);
-      toast.success(was ? "Removed from your crew." : "Added to your crew.");
+      toast.success(was ? "Removed from your comares." : "Added to your comares.");
     } catch {
       setFollowingState(was);
       setCrew((c) => ({ ...c, followers: c.followers + (was ? 1 : -1) }));
@@ -193,9 +193,9 @@ export default function CookPage() {
                   <dd className="text-[11px] text-mute">streak</dd>
                 </div>
                 <div className="rounded bg-paper-deep py-2">
-                  <dt className="sr-only">Crew size</dt>
+                  <dt className="sr-only">Comares</dt>
                   <dd className="font-display text-lg font-bold">{crew.followers}</dd>
-                  <dd className="text-[11px] text-mute">crew</dd>
+                  <dd className="text-[11px] text-mute">comares</dd>
                 </div>
                 <div className="rounded bg-paper-deep py-2">
                   <dt className="sr-only">Following</dt>
@@ -212,7 +212,7 @@ export default function CookPage() {
                   This kitchen draws the curtain
                 </h2>
                 <p className="mx-auto mt-2 max-w-sm text-sm text-mute">
-                  {cook.display_name} keeps their boards for their crew only. Follow them if
+                  {cook.display_name} keeps their boards for their comares only. Follow them if
                   they know your cooking, and their weekly plans show up here.
                 </p>
               </section>
@@ -242,7 +242,7 @@ export default function CookPage() {
                         </p>
                         {plan.visibility === "buddies" && (
                           <p className="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-sun">
-                            <Lock className="size-3" aria-hidden="true" /> crew only
+                            <Lock className="size-3" aria-hidden="true" /> comares only
                           </p>
                         )}
                         <div className="mt-3 flex items-center gap-2">

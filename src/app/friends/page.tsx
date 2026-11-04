@@ -90,13 +90,13 @@ export default function FriendsPage() {
 
   const follow = async (cook: CookRow) => {
     if (!userId) {
-      toast.error("Sign in to build your crew.");
+      toast.error("Sign in to build your comares.");
       return;
     }
     try {
       await setFollowing(userId, cook.id, true);
       setRows((prev) => prev?.filter((r) => r.id !== cook.id) ?? prev);
-      toast.success(`Added ${cook.display_name} to your crew.`);
+      toast.success(`Added ${cook.display_name} to your comares.`);
     } catch {
       toast.error("Could not save that, the kitchen hiccuped.");
     }
@@ -120,7 +120,7 @@ export default function FriendsPage() {
         <main id="pp-main" className="mx-auto max-w-xl px-5 py-16 text-center">
           <BackButton fallbackHref="/" label="Back to the planner" />
           <br />
-          <h1 className="mt-4 font-display text-3xl font-semibold">Meet your crew</h1>
+          <h1 className="mt-4 font-display text-3xl font-semibold">Meet your comares</h1>
           <p className="mt-2 text-sm text-mute">
             Follow cooks you like, see their boards first, and pick who gets to see your
             kitchen when it is private.
@@ -139,7 +139,7 @@ export default function FriendsPage() {
 
   const TAB_INFO: { key: Tab; label: string }[] = [
     { key: "discover", label: "Kitchens to peek" },
-    { key: "crew", label: "My crew" },
+    { key: "crew", label: "My comares" },
     { key: "followers", label: "They follow me" },
   ];
 
@@ -151,7 +151,7 @@ export default function FriendsPage() {
           <BackButton fallbackHref="/profile" label="Back to your profile" />
         </div>
         <section className="py-6">
-          <h1 className="font-display text-3xl font-semibold">Your crew</h1>
+          <h1 className="font-display text-3xl font-semibold">Your comares</h1>
           <p className="mt-1 max-w-lg text-sm text-mute">
             The cooks you keep up with, the ones keeping up with you, and kitchens worth a
             peek when you feel like wandering.
@@ -192,7 +192,7 @@ export default function FriendsPage() {
               </>
             ) : tab === "crew" ? (
               <>
-                <p className="font-display text-xl font-semibold">No one in your crew yet</p>
+                <p className="font-display text-xl font-semibold">No one in your comares yet</p>
                 <p className="mt-2 text-sm text-mute">
                   Flip to the first tab and follow a cook or two. Their boards land on the
                   community feed.

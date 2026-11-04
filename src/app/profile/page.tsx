@@ -18,7 +18,7 @@ const BADGES: { code: string; name: string; hint: string }[] = [
   { code: "streak-iii", name: "Three in a row", hint: "Planned three days straight." },
   { code: "streak-vii", name: "Full week", hint: "Seven days straight of planning." },
   { code: "first-share", name: "Board poster", hint: "Shared a plan with the community." },
-  { code: "crew-v", name: "Crew magnet", hint: "Five cooks follow you around." },
+  { code: "crew-v", name: "Comare magnet", hint: "Five comares follow you around." },
   { code: "xp-100", name: "Steam rising", hint: "A hundred xp of cooking notes." },
 ];
 
@@ -123,9 +123,9 @@ export default function ProfilePage() {
                 <dd className="text-xs text-mute">shared</dd>
               </div>
               <div>
-                <dt className="sr-only">Crew</dt>
+                <dt className="sr-only">Comares</dt>
                 <dd className="font-display text-2xl font-bold">{crew.followers}</dd>
-                <dd className="text-xs text-mute">crew</dd>
+                <dd className="text-xs text-mute">comares</dd>
               </div>
             </dl>
           </div>
@@ -136,7 +136,7 @@ export default function ProfilePage() {
                 {profile.is_private && (
                   <span
                     className="flex shrink-0 items-center gap-1 rounded bg-paper-deep px-1.5 py-0.5 align-middle text-[10px] font-bold text-sun"
-                    title="Only your crew sees your boards"
+                    title="Only your comares sees your boards"
                   >
                     <Lock className="size-3" aria-hidden="true" /> private
                   </span>

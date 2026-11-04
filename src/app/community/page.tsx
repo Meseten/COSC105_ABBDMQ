@@ -37,7 +37,10 @@ export default function CommunityPage() {
   const signedIn = session !== undefined && session !== null && !session.user.is_anonymous;
   const [rows, setRows] = useState<PublicPlan[] | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [mineOnly, setMineOnly] = useState(false);
+  const [scope, setScope] = useState<"all" | "comares" | "mine">("all");
+  const [comareIds, setComareIds] = useState<Set<string>>(new Set());
+  const [maxBudget, setMaxBudget] = useState(0);
+  const [maxDays, setMaxDays] = useState(0);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<"new" | "loved">("new");
   const [board, setBoard] = useState<LeaderRow[]>([]);
@@ -56,6 +59,17 @@ export default function CommunityPage() {
       setRows(list);
       setShelved(await savedPostIds(list.map((l) => l.id), uid));
       const sb = db();
+      if (uid) {
+        void sb
+          ?.from("follows")
+          .select("following_id")
+          .eq("follower_id", uid)
+          .then(({ data }) => {
+            if (alive && data) {
+              setComareIds(new Set(data.map((r) => String(r.following_id))));
+            }
+          });
+      }
       if (sb) {
         void sb
           .from("profiles")
@@ -74,7 +88,18 @@ export default function CommunityPage() {
   }, [session, sort]);
 
   const shown = rows
-    ?.filter((r) => (mineOnly && userId ? r.user_id === userId : true))
+    ?.filter((r) => (scope === "mine" && userId ? r.user_id === userId : true))
+    .filter((r) => (scope === "comares" ? comareIds.has(r.user_id) : true))
+    .filter((r) =>
+      maxDays === 1
+        ? r.plan.mealPlan.length === 1
+        : maxDays === 2
+          ? r.plan.mealPlan.length >= 2
+          : true,
+    )
+    .filter((r) =>
+      maxBudget > 0 ? r.plan.financialSummary.totalEstimatedCost <= maxBudget : true,
+    )
     .filter((r) =>
       query.trim()
         ? (r.title + " " + (r.cook_name ?? ""))
@@ -170,20 +195,56 @@ export default function CommunityPage() {
                 Most loved
               </button>
             </div>
-            <label className="flex cursor-pointer items-center gap-2 text-sm font-bold">
-              <input
-                type="checkbox"
-                checked={mineOnly}
-                onChange={(e) => setMineOnly(e.target.checked)}
-                className="size-4 accent-[color:var(--herb)]"
-              />
-              Only mine
-            </label>
+            <div
+              className="flex overflow-hidden rounded-sm border border-line"
+              role="group"
+              aria-label="Whose boards to show"
+            >
+              {(
+                [
+                  ["all", "Everyone"],
+                  ["comares", "Comares"],
+                  ["mine", "Mine"],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={scope === value}
+                  onClick={() => setScope(value)}
+                  className={`min-h-10 px-3 text-sm font-bold transition-colors ${
+                    scope === value ? "bg-herb text-paper" : "bg-card text-mute hover:text-herb"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <select
+              value={maxBudget}
+              onChange={(e) => setMaxBudget(Number(e.target.value))}
+              aria-label="Filter by budget"
+              className="h-10 px-2 text-sm"
+            >
+              <option value={0}>Any budget</option>
+              <option value={500}>Under ₱500</option>
+              <option value={1000}>Under ₱1,000</option>
+            </select>
+            <select
+              value={maxDays}
+              onChange={(e) => setMaxDays(Number(e.target.value))}
+              aria-label="Filter by days"
+              className="h-10 px-2 text-sm"
+            >
+              <option value={0}>Any days</option>
+              <option value={1}>One day</option>
+              <option value={2}>Two days or more</option>
+            </select>
             <Link
               href="/friends"
               className="min-h-10 rounded-sm border border-line bg-card px-4 py-2 text-sm font-bold transition-colors hover:border-herb hover:text-herb"
             >
-              My crew
+              My comares
             </Link>
             <Link
               href="/saved"
@@ -284,7 +345,7 @@ export default function CommunityPage() {
                         />
                         <rect x="3.6" y="6.5" width="8.8" height="6.4" rx="1.4" fill="currentColor" />
                       </svg>
-                      crew only
+                      comares only
                     </span>
                   )}
                   {plan.plan.mealPlan.length} {plan.plan.mealPlan.length === 1 ? "day" : "days"} ·{" "}

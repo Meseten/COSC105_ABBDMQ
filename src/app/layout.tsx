@@ -26,6 +26,20 @@ export const metadata: Metadata = {
   description:
     "List the ingredients you already have, set a budget, and coci drafts a day-by-day meal plan plus a shopping list of what's missing.",
   applicationName: "coci",
+  openGraph: {
+    type: "website",
+    siteName: "coci",
+    title: "coci, your cocina buddy",
+    description:
+      "Plan palengke meals around what is actually in your kitchen, then share the board with your comares.",
+    images: [{ url: "/icons/icon-512.png", width: 512, height: 512, alt: "coci" }],
+  },
+  twitter: {
+    card: "summary",
+    title: "coci, your cocina buddy",
+    description:
+      "Plan palengke meals around what is actually in your kitchen, then share the board with your comares.",
+  },
   icons: {
     icon: [
       { url: "/favicon.png", media: "(prefers-color-scheme: light)" },

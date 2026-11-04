@@ -132,7 +132,7 @@ export default function SavedPage() {
       setShareTitle("");
       toast.success(
         shareVisibility === "buddies"
-          ? "Posted for your crew only."
+          ? "Posted for your comares only."
           : "Posted on the community board.",
       );
       window.open(`/community/${id}`, "_blank");
@@ -413,11 +413,11 @@ export default function SavedPage() {
                     onChange={() => setShareVisibility("buddies")}
                     className="size-4 accent-[color:var(--herb)]"
                   />
-                  Crew only
+                  Comares only
                 </label>
               </div>
               <p className="mt-1.5 text-xs text-mute">
-                Crew only posts are visible to the cooks who follow you, everyone else
+                Comare-only posts are visible to the cooks who follow you, everyone else
                 scrolls right past.
               </p>
             </fieldset>
